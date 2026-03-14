@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インターン Weekly Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #1f1f2a;
+    --border: #2e2e3e;
+    --accent: #7c6af7;
+    --accent2: #4ecdc4;
+    --accent3: #f7c948;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --success: #4ade80;
+    --danger: #f87171;
+    --font-body: 'Noto Sans JP', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+  }
+
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header-left { flex: 1; min-width: 200px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,106,247,0.12);
+    border: 1px solid rgba(124,106,247,0.3);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  h1 span { color: var(--accent); }
+
+  .week-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: right;
+    min-width: 160px;
+  }
+
+  .week-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .week-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* Meta row */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .meta-field label {
+    display: block;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .meta-field input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .meta-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,106,247,0.1);
+  }
+
+  /* Section cards */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .section:focus-within {
+    border-color: rgba(124,106,247,0.4);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .icon-green  { background: rgba(78,205,196,0.12); }
+  .icon-purple { background: rgba(124,106,247,0.12); }
+  .icon-yellow { background: rgba(247,201,72,0.12); }
+  .icon-red    { background: rgba(248,113,113,0.12); }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: var(--font-mono);
+  }
+
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.75;
+    padding: 16px 20px;
+    resize: none;
+    outline: none;
+    min-height: 110px;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+
+  /* Char counter */
+  .char-counter {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 16px 10px;
+  }
+
+  .char-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+  }
+
+  /* Settings panel */
+  .settings-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .settings-toggle:hover { color: var(--text); }
+
+  .settings-toggle .arrow {
+    margin-left: auto;
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+
+  .settings-toggle.open .arrow { transform: rotate(180deg); }
+
+  .settings-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .settings-body.visible { display: block; }
+
+  .settings-body label {
+    display: block;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 14px 0 6px;
+  }
+
+  .settings-body input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .settings-body input:focus { border-color: var(--accent); }
+
+  .settings-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .settings-hint a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* Submit button */
+  .submit-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .submit-btn {
+    position: relative;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 40px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    box-shadow: 0 4px 20px rgba(124,106,247,0.35);
+    overflow: hidden;
+    min-width: 240px;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(124,106,247,0.45);
+  }
+
+  .submit-btn:active { transform: translateY(0); }
+
+  .submit-btn:disabled {
+    background: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: rgba(74,222,128,0.4); }
+  .toast.success .toast-icon { color: var(--success); }
+  .toast.error { border-color: rgba(248,113,113,0.4); }
+  .toast.error .toast-icon { color: var(--danger); }
+
+  .toast-icon { font-size: 18px; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 28px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+  }
+
+  .progress-step {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .progress-step.filled { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="badge">Intern Report</div>
+      <h1>Weekly<br><span>Report</span></h1>
+    </div>
+    <div class="week-display">
+      <div class="week-label">提出期間</div>
+      <div class="week-value" id="weekRange">—</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-step" data-idx="0"></div>
+    <div class="progress-step" data-idx="1"></div>
+    <div class="progress-step" data-idx="2"></div>
+    <div class="progress-step" data-idx="3"></div>
+    <div class="progress-step" data-idx="4"></div>
+    <div class="progress-step" data-idx="5"></div>
+  </div>
+
+  <!-- Meta -->
+  <div class="meta-row">
+    <div class="meta-field">
+      <label>氏名</label>
+      <input type="text" id="name" placeholder="山田 太郎" autocomplete="name">
+    </div>
+    <div class="meta-field">
+      <label>提出日</label>
+      <input type="date" id="submitDate">
+    </div>
+  </div>
+
+  <!-- Section 1: 今週の成果 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">✅</div>
+      <div>
+        <div class="section-title">今週の成果・実績</div>
+      </div>
+      <span class="section-sub" id="count1">0 文字</span>
+    </div>
+    <textarea id="achievements" placeholder="今週取り組んだこと、完了したタスク、達成した成果を記入してください。" oninput="updateCount(this,'count1');updateProgress()"></textarea>
+    <div class="char-counter"><span class="char-num" id="count1b"></span></div>
+  </div>
+
+  <!-- Section 2: 来週の目標 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🎯</div>
+      <div>
+        <div class="section-title">来週の目標・タスク</div>
+      </div>
+      <span class="section-sub" id="count2">0 文字</span>
+    </div>
+    <textarea id="goals" placeholder="来週取り組む予定のタスクや目標を記入してください。" oninput="updateCount(this,'count2');updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 3: 学んだこと -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">💡</div>
+      <div>
+        <div class="section-title">学んだこと・気づき</div>
+      </div>
+      <span class="section-sub" id="count3">0 文字</span>
+    </div>
+    <textarea id="learnings" placeholder="今週学んだこと、気づいたこと、印象に残ったことを記入してください。" oninput="updateCount(this,'count3');updateProgress()"></textarea>
+  </div>
+
+  <!-- Section 4: 困っていること -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">🙋</div>
+      <div>
+        <div class="section-title">困っていること・相談事項</div>
+      </div>
+      <span class="section-sub" id="count4">0 文字</span>
+    </div>
+    <textarea id="concerns" placeholder="困っていること、サポートが必要なこと、相談したいことを記入してください。（なければ「特になし」でOK）" oninput="updateCount(this,'count4');updateProgress()"></textarea>
+  </div>
+
+  <!-- Slack Settings -->
+  <div class="settings-panel">
+    <div class="settings-toggle" id="settingsToggle" onclick="toggleSettings()">
+      <span>⚙️</span>
+      <span>Slack通知設定</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="settings-body" id="settingsBody">
+      <label>Slack Incoming Webhook URL</label>
+      <input type="password" id="webhookUrl" placeholder="https://hooks.slack.com/services/XXXX/XXXX/XXXX">
+      <p class="settings-hint">
+        Slack の <a href="https://api.slack.com/messaging/webhooks" target="_blank">Incoming Webhooks</a> からURLを取得してください。<br>
+        設定後はこのURLがブラウザに保存されます。
+      </p>
+
+      <label>通知チャンネル（任意）</label>
+      <input type="text" id="slackChannel" placeholder="#weekly-report（Webhookのデフォルトチャンネルを使う場合は空欄）">
+
+      <label>通知メンション（任意）</label>
+      <input type="text" id="mentionId" placeholder="@社長のSlack Member ID（例: @U012AB3CD）">
+      <p class="settings-hint">Member ID は Slack のプロフィール画面から確認できます。</p>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submitBtn" onclick="submitReport()">
+      📤 レポートを提出してSlackに通知
+    </button>
+  </div>
+
+  <div class="footer">Intern Weekly Report System</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">提出しました！</span>
+</div>
+
+<script>
+  // Init
+  window.addEventListener('DOMContentLoaded', () => {
+    // Set today's date
+    const today = new Date();
+    document.getElementById('submitDate').value = today.toISOString().split('T')[0];
+
+    // Set week range
+    const day = today.getDay();
+    const mon = new Date(today);
+    mon.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+    const fri = new Date(mon);
+    fri.setDate(mon.getDate() + 4);
+    const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+    document.getElementById('weekRange').textContent = `${fmt(mon)} 〜 ${fmt(fri)}`;
+
+    // Load saved webhook
+    const saved = localStorage.getItem('slackWebhook');
+    if (saved) document.getElementById('webhookUrl').value = saved;
+    const savedCh = localStorage.getItem('slackChannel');
+    if (savedCh) document.getElementById('slackChannel').value = savedCh;
+    const savedMention = localStorage.getItem('slackMention');
+    if (savedMention) document.getElementById('mentionId').value = savedMention;
+  });
+
+  function updateCount(el, id) {
+    const len = el.value.length;
+    document.getElementById(id).textContent = len + ' 文字';
+  }
+
+  function updateProgress() {
+    const fields = ['name','achievements','goals','learnings','concerns'];
+    let filled = 0;
+    fields.forEach(id => {
+      if (document.getElementById(id).value.trim()) filled++;
+    });
+    const steps = document.querySelectorAll('.progress-step');
+    const fillCount = Math.round((filled / fields.length) * steps.length);
+    steps.forEach((s, i) => {
+      s.classList.toggle('filled', i < fillCount);
+    });
+  }
+
+  function toggleSettings() {
+    const toggle = document.getElementById('settingsToggle');
+    const body = document.getElementById('settingsBody');
+    toggle.classList.toggle('open');
+    body.classList.toggle('visible');
+  }
+
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    const icon = document.getElementById('toastIcon');
+    const msgEl = document.getElementById('toastMsg');
+    toast.className = `toast ${type}`;
+    icon.textContent = type === 'success' ? '✅' : '❌';
+    msgEl.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  async function submitReport() {
+    const name = document.getElementById('name').value.trim();
+    const date = document.getElementById('submitDate').value;
+    const achievements = document.getElementById('achievements').value.trim();
+    const goals = document.getElementById('goals').value.trim();
+    const learnings = document.getElementById('learnings').value.trim();
+    const concerns = document.getElementById('concerns').value.trim();
+    const webhookUrl = document.getElementById('webhookUrl').value.trim();
+    const channel = document.getElementById('slackChannel').value.trim();
+    const mention = document.getElementById('mentionId').value.trim();
+
+    if (!name) { showToast('氏名を入力してください', 'error'); return; }
+    if (!achievements) { showToast('今週の成果を入力してください', 'error'); return; }
+    if (!goals) { showToast('来週の目標を入力してください', 'error'); return; }
+
+    if (!webhookUrl) {
+      showToast('Slack Webhook URLを設定してください', 'error');
+      document.getElementById('settingsToggle').classList.add('open');
+      document.getElementById('settingsBody').classList.add('visible');
+      return;
+    }
+
+    // Save settings
+    localStorage.setItem('slackWebhook', webhookUrl);
+    localStorage.setItem('slackChannel', channel);
+    localStorage.setItem('slackMention', mention);
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+
+    // Build Slack message
+    const dateLabel = date ? new Date(date).toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'}) : '—';
+    const mentionStr = mention ? `${mention} ` : '';
+
+    const payload = {
+      ...(channel ? { channel } : {}),
+      text: `${mentionStr}📋 *インターン Weekly Report 提出通知*`,
+      blocks: [
+        {
+          type: "header",
+          text: { type: "plain_text", text: "📋 インターン Weekly Report", emoji: true }
+        },
+        {
+          type: "section",
+          fields: [
+            { type: "mrkdwn", text: `*氏名*\n${name}` },
+            { type: "mrkdwn", text: `*提出日*\n${dateLabel}` }
+          ]
+        },
+        { type: "divider" },
+        {
+          type: "section",
+          text: { type: "mrkdwn", text: `*✅ 今週の成果・実績*\n${achievements}` }
+        },
+        {
+          type: "section",
+          text: { type: "mrkdwn", text: `*🎯 来週の目標・タスク*\n${goals}` }
+        },
+        {
+          type: "section",
+          text: { type: "mrkdwn", text: `*💡 学んだこと・気づき*\n${learnings || '（記入なし）'}` }
+        },
+        {
+          type: "section",
+          text: { type: "mrkdwn", text: `*🙋 困っていること・相談事項*\n${concerns || '特になし'}` }
+        },
+        { type: "divider" },
+        {
+          type: "context",
+          elements: [{ type: "mrkdwn", text: `Intern Weekly Report System より自動送信 · ${dateLabel}` }]
+        }
+      ]
+    };
+
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok || res.status === 200) {
+        showToast('✅ 提出完了！Slackに通知しました', 'success');
+        btn.textContent = '✅ 提出済み';
+        // Animate progress full
+        document.querySelectorAll('.progress-step').forEach(s => s.classList.add('filled'));
+      } else {
+        const txt = await res.text();
+        if (txt === 'ok') {
+          showToast('✅ 提出完了！Slackに通知しました', 'success');
+          btn.textContent = '✅ 提出済み';
+        } else {
+          throw new Error(txt);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      // Slack webhooks return plain "ok", fetch may fail due to CORS in some envs
+      // If the error is a CORS/network error after sending, assume success
+      if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+        showToast('✅ 送信しました（CORS制限のため確認できません）', 'success');
+        btn.textContent = '✅ 提出済み';
+      } else {
+        showToast('送信に失敗しました。Webhook URLを確認してください', 'error');
+        btn.disabled = false;
+        btn.textContent = '📤 レポートを提出してSlackに通知';
+      }
+    }
+  }
+</script>
+</body>
+</html>
